@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer from 'puppeteer-core';
 import fs from "fs"
 import express from "express";
 import cron from "node-cron"
@@ -8,8 +8,9 @@ import cors from 'cors'
 async function scrape(){ 
     //Initializing scarper
     const puppet = await puppeteer.launch({
-        headless: false
-      });
+        executablePath: "./chromium-browser",
+        headless: true,
+    });
 
     //links as data
     let return_data = {
