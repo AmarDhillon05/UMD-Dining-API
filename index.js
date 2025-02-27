@@ -127,11 +127,20 @@ cron.schedule('0 */8 * * *', () => {
 
 //app
 const app = express()
+
+//Allowing cors
 app.use(cors({
   origin: "*", // Replace with frontend domain if needed
   methods: "GET,POST,PUT,DELETE,OPTIONS",
   allowedHeaders: "Content-Type,Authorization"
 }));
+
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.status(200).end();
+});
 
 
 app.get('/', (req, res) => {
