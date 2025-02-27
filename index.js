@@ -5,6 +5,12 @@ import express from "express";
 import cron from "node-cron"
 import cors from 'cors'
 
+//JSON file path
+const jsonFilePath = process.cwd() + "/tmp/data.json"
+console.log("JSON EXISTS: ")
+console.log(process.existsFileSync(jsonFilePath))
+
+
 //Scraping function
 async function scrape(){ 
     //Initializing scarper
