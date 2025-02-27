@@ -103,13 +103,13 @@ async function scrape(){
 
 //First creating file
 scrape().then(data => {
-    fs.writeFileSync("./tmp/data.json", data)
+    fs.writeFileSync("tmp/data.json", data)
 })
 
 //Updater
 cron.schedule('0 */8 * * *', () => {
     scrape().then(data => {
-        fs.writeFileSync("./tmp/data.json", data)
+        fs.writeFileSync("tmp/data.json", data)
         console.log("File updated")
     })
   }, {
@@ -127,7 +127,7 @@ app.get('/', (req, res) => {
     console.log("Got a get request")
 
     //Returning file data
-    const data = fs.readFileSync("./tmp/data.json", 'utf-8')
+    const data = fs.readFileSync("tmp/data.json", 'utf-8')
     res.send(data)
 
 })
