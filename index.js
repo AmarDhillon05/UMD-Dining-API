@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer-core';
+import chrome from "chrome-aws-lambda"
 import fs from "fs"
 import express from "express";
 import cron from "node-cron"
@@ -7,10 +8,14 @@ import cors from 'cors'
 //Scraping function
 async function scrape(){ 
     //Initializing scarper
-    const puppet = await puppeteer.launch({
-        executablePath: "./chromium-browser",
+    const options = {
+        args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+        defaultViewport: chrome.defaultViewport,
+        executablePath: await chrome.executablePath,
         headless: true,
-    });
+        ignoreHTTPSErrors: true,
+    }
+    const puppet = await puppeteer.launch(options);
 
     //links as data
     let return_data = {
