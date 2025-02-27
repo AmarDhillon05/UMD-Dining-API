@@ -8,7 +8,7 @@ import cors from 'cors'
 //JSON file path
 const jsonFilePath = process.cwd() + "/tmp/data.json"
 console.log("JSON EXISTS: ")
-console.log(process.existsFileSync(jsonFilePath))
+console.log(process.existsSync(jsonFilePath))
 
 
 //Scraping function
@@ -109,13 +109,13 @@ async function scrape(){
 
 //First creating file
 scrape().then(data => {
-    fs.writeFileSync("tmp/data.json", data)
+    fs.writeFileSync(jsonFilePath, data)
 })
 
 //Updater
 cron.schedule('0 */8 * * *', () => {
     scrape().then(data => {
-        fs.writeFileSync("tmp/data.json", data)
+        fs.writeFileSync(jsonFilePath, data)
         console.log("File updated")
     })
   }, {
@@ -133,7 +133,7 @@ app.get('/', (req, res) => {
     console.log("Got a get request")
 
     //Returning file data
-    const data = fs.readFileSync("tmp/data.json", 'utf-8')
+    const data = fs.readFileSync(jsonFilePath, 'utf-8')
     res.send(data)
 
 })
