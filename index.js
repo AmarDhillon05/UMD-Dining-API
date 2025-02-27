@@ -8,7 +8,7 @@ import cors from 'cors'
 //JSON file path
 const jsonFilePath = process.cwd() + "/tmp/data.json"
 console.log("JSON EXISTS: ")
-console.log(process.existsSync(jsonFilePath))
+console.log(fs.existsSync(jsonFilePath))
 
 
 //Scraping function
