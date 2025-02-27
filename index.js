@@ -63,6 +63,7 @@ async function scrape(){
                             tags.push(img.alt)
                         })
                         sections[title][item_name] = tags
+                        sections[title][item_name].push(card.getElementsByClassName("menu-item-name")[0].href)
                     })
                 })
 
@@ -84,6 +85,7 @@ async function scrape(){
                             tags.push(img.alt)
                         })
                         sections[title][item_name] = tags
+                        sections[title][item_name].push(card.getElementsByClassName("menu-item-name")[0].href)
                     })
                 })
 
