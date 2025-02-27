@@ -127,7 +127,12 @@ cron.schedule('0 */8 * * *', () => {
 
 //app
 const app = express()
-app.use(cors())
+app.use(cors({
+  origin: "*", // Replace with frontend domain if needed
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  allowedHeaders: "Content-Type,Authorization"
+}));
+
 
 app.get('/', (req, res) => {
     console.log("Got a get request")
