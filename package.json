@@ -1,4 +1,5 @@
 {
+  "engines": { "node": "22.x" },
   "dependencies": {
     "chrome-aws-lambda": "^10.1.0",
     "cors": "^2.8.5",
