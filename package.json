@@ -1,7 +1,7 @@
 {
   "engines": { "node": "22.x" },
   "dependencies": {
-    "chrome-aws-lambda": "^10.1.0",
+    "@sparticuz/chromium": "^132.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "node-cron": "^3.0.3",
