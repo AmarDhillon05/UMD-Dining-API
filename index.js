@@ -160,12 +160,6 @@ async function scrape(){
 }
 
 
-
-//First creating file
-scrape().then(data => {
-    fs.writeFileSync(jsonFilePath, data)
-})
-
 //Updater
 cron.schedule('0 */8 * * *', () => {
     scrape().then(data => {
@@ -208,7 +202,11 @@ app.get('/', (req, res) => {
 
 
 //Run
-const port = 9000
-app.listen(port, () => {
-    console.log(`TerpMeals API listening on port ${port}`);
-  });
+//First creating file
+scrape().then(data => {
+    fs.writeFileSync(jsonFilePath, data)
+    const port = 9000
+    app.listen(port, () => {
+        console.log(`TerpMeals API listening on port ${port}`);
+      });
+})
