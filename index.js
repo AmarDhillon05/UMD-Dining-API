@@ -11,7 +11,6 @@ console.log("JSON EXISTS: ")
 console.log(fs.existsSync(jsonFilePath))
 
 
-//Scraping function
 async function scrape(){ 
     //Initializing scarper
     const options = {
@@ -111,26 +110,27 @@ async function scrape(){
                 let nutrition_facts = {}
 
                 //Serving size
-                try{
-                    let header = document.getElementsByTagName("td")[0]
-                    nutrition_facts['cals_per_serving'] = header.getElementsByTagName("p")[1].innerHTML
-
-                    //Macros
-                    let factors = document.getElementsByClassName("nutfactstopnutrient")
-                    Array.from(factors).forEach(el => {
-                        let innerHTML = el.innerHTML.replace("<b>", "").replace("<i>", "")
-                        innerHTML = innerHTML.replace("</b>", "").replace("</i>", "").replace("&nbsp", "")
-                        if(!innerHTML.includes("%") && !(innerHTML == "")){
-                            let sep = innerHTML.split(";")
-                            nutrition_facts[sep[0]] = sep[1]
-                        }
-                    })
-
-                    return nutrition_facts
+                let header = document.getElementsByTagName("td")[0]
+                for(const el of Array.from(header.getElementsByTagName("p"))){
+                    if(el.innerHTML != "Calories per serving"){
+                        nutrition_facts['cals_per_serving'] = el.innerHTML
+                        break
+                    }
                 }
-                catch(error){
-                    return {}
-                }
+                
+
+                //Macros
+                let factors = document.getElementsByClassName("nutfactstopnutrient")
+                Array.from(factors).forEach(el => {
+                    let innerHTML = el.innerHTML.replace("<b>", "").replace("<i>", "")
+                    innerHTML = innerHTML.replace("</b>", "").replace("</i>", "").replace("&nbsp", "")
+                    if(!innerHTML.includes("%") && !(innerHTML == "")){
+                        let sep = innerHTML.split(";")
+                        nutrition_facts[sep[0]] = sep[1]
+                    }
+                })
+
+                return nutrition_facts
        
             })
         }
@@ -157,6 +157,7 @@ async function scrape(){
         return JSON.stringify({"error" : error})
     }
 }
+
 
 
 //First creating file
