@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer-core';
-import chrome from "chrome-aws-lambda"
+import chromium from "@sparticuz/chromium:
 import fs from "fs"
 import express from "express";
 import cron from "node-cron"
@@ -13,14 +13,19 @@ console.log(fs.existsSync(jsonFilePath))
 
 async function scrape(){ 
     //Initializing scarper
-    const options = {
+    /*const options = {
         args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
         defaultViewport: chrome.defaultViewport,
         executablePath: await chrome.executablePath,
         headless: true,
         ignoreHTTPSErrors: true,
-    }
-    const puppet = await puppeteer.launch(options);
+    }*/
+    const puppet =  await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
 
     //links as data
     let return_data = {
