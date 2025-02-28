@@ -24,6 +24,7 @@ async function scrape(){
 
     //links as data
     let return_data = {
+        last_updated: new Date().toDateString(),
         Y: {
             name: "Yahentamitsi",
             link: "https://nutrition.umd.edu/?locationNum=19"
