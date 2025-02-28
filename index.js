@@ -39,63 +39,113 @@ async function scrape(){
         }
     }
 
+    //List of macros to accumulate into return_data
+    let macros = []
+
     try{
         //Requesting from each dining hall
         for(const dining_hall in return_data){
             const link = return_data[dining_hall].link
 
             //Parsing
-            const page = await puppet.newPage()
+            let page = await puppet.newPage()
             await page.goto(link, {
                 waitUntil: "domcontentloaded",
             })
 
-            const brunch = await page.evaluate(() => {
-                console.log('getting brunch')
-                let sections = {}
-                Array.from(document.getElementsByClassName("card")).forEach(card => {
-                    let title = card.getElementsByClassName("card-title")[0].innerHTML
-                    sections[title] = {}
-                    Array.from(card.getElementsByClassName("menu-item-row")).forEach(item => {
-                        let item_name = card.getElementsByClassName("menu-item-name")[0].innerHTML
-                        let tags = []
-                        Array.from(item.getElementsByTagName("img")).forEach(img => {
-                            tags.push(img.alt)
-                        })
-                        sections[title][item_name] = tags
-                        sections[title][item_name].push(card.getElementsByClassName("menu-item-name")[0].href)
-                    })
-                })
-
-                return sections
-            });
             
-            await page.locator("#tab-2").click()
-
-            const dinner = await page.evaluate(() => {
-                console.log("getting dinner")
-                let sections = {}
-                Array.from(document.getElementsByClassName("card")).forEach(card => {
-                    let title = card.getElementsByClassName("card-title")[0].innerHTML
-                    sections[title] = {}
-                    Array.from(card.getElementsByClassName("menu-item-row")).forEach(item => {
-                        let item_name = card.getElementsByClassName("menu-item-name")[0].innerHTML
-                        let tags = []
-                        Array.from(item.getElementsByTagName("img")).forEach(img => {
-                            tags.push(img.alt)
-                        })
-                        sections[title][item_name] = tags
-                        sections[title][item_name].push(card.getElementsByClassName("menu-item-name")[0].href)
-                    })
-                })
-
-                return sections
-            });
             
 
-            return_data[dining_hall].brunch = brunch
-            return_data[dining_hall].dinner = dinner
+            //Main scraper function
+            async function get_page_content(){
+                return await page.evaluate(() => {
+                    let sections = {}
+                    let links = {}
+                    Array.from(document.getElementsByClassName("card")).forEach(card => {
+                        let title = card.getElementsByClassName("card-title")[0].innerHTML
+                        sections[title] = {}
+                        Array.from(card.getElementsByClassName("menu-item-row")).forEach(item => {
+                            let item_name = card.getElementsByClassName("menu-item-name")[0].innerHTML
+                            let link = card.getElementsByClassName("menu-item-name")[0].href
+                            links[item_name] = link
+                            let tags = []
+                            Array.from(item.getElementsByTagName("img")).forEach(img => {
+                                tags.push(img.alt)
+                            })
+                            sections[title][item_name] = tags
+                            sections[title][item_name][link] = link
+                        })
+                    })
+
+                    return [sections, links]
+                });
+            }
+            
+
+            //Doing this for all the Nav links
+            let nav_links = await page.evaluate(() => {
+                return Array.from(document.getElementsByClassName("nav-link")).map(link => ({
+                    id: link.id,
+                    name: link.innerHTML
+                }));
+            });
+        
+            for(const link of nav_links){
+                await page.locator("#" + link.id).click()
+                let all = await get_page_content()
+                let content = all[0];
+                let nutrition_link = all[1];
+                return_data[dining_hall][link.name] = content
+                macros.push(nutrition_link)
+            }
         }
+
+
+
+        //Now getting macros for each link
+        return_data['macros'] = {}
+        let page = await puppet.newPage()
+
+        async function get_nutrition(){
+            return await page.evaluate(() => {
+                let nutrition_facts = {}
+
+                //Serving size
+                try{
+                    let header = document.getElementsByTagName("td")[0]
+                    nutrition_facts['cals_per_serving'] = header.getElementsByTagName("p")[1].innerHTML
+
+                    //Macros
+                    let factors = document.getElementsByClassName("nutfactstopnutrient")
+                    Array.from(factors).forEach(el => {
+                        let innerHTML = el.innerHTML.replace("<b>", "").replace("<i>", "")
+                        innerHTML = innerHTML.replace("</b>", "").replace("</i>", "").replace("&nbsp", "")
+                        if(!innerHTML.includes("%") && !(innerHTML == "")){
+                            let sep = innerHTML.split(";")
+                            nutrition_facts[sep[0]] = sep[1]
+                        }
+                    })
+
+                    return nutrition_facts
+                }
+                catch(error){
+                    return {}
+                }
+       
+            })
+        }
+
+        //Updating return_data[macros]
+        for(const macro_set of macros){
+            let macro_set_keys = Object.keys(macro_set)
+            for(const key of macro_set_keys){
+                await page.goto(macro_set[key], {
+                    waitUntil: "domcontentloaded",
+                })
+                return_data['macros'][key] = await get_nutrition()
+            }
+        }
+
 
         await puppet.close()
         
